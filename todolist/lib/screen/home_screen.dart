@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:todolist/helpers/drawer_navigation.dart';
 import 'package:todolist/models/todo.dart';
 import 'package:todolist/screen/todo_screen.dart';
@@ -65,25 +66,30 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     });
   }
+  Future<bool> _onBackPressed() async {
+      SystemNavigator.pop();
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: new AppBar(
-        title: new Text('Todo List'),
-      ) ,
-      drawer: new DrawerNavigation(),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: (){
-          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>TodoScreen()));
-        },
-        child: new Icon(Icons.add),
-      ),
-      body: new ListView.builder(
-          itemCount: _todoList.length,
-          itemBuilder:(context,index){
-            return setColor(index);
-          }),
-    );
+    return WillPopScope(
+        child: Scaffold(
+          appBar: new AppBar(
+            title: new Text('Todo List'),
+          ) ,
+          drawer: new DrawerNavigation(),
+          floatingActionButton: new FloatingActionButton(
+            onPressed: (){
+              Navigator.of(context).push(MaterialPageRoute(builder: (context)=>TodoScreen()));
+            },
+            child: new Icon(Icons.add),
+          ),
+          body: new ListView.builder(
+              itemCount: _todoList.length,
+              itemBuilder:(context,index){
+                return setColor(index);
+              }),
+        ),
+        onWillPop:_onBackPressed);
   }
 }
 

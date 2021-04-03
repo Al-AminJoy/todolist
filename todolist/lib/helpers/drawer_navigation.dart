@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:todolist/models/category.dart';
 import 'package:todolist/screen/categories_screen.dart';
 import 'package:todolist/screen/home_screen.dart';
+import 'package:todolist/screen/todo_by_category.dart';
 import 'package:todolist/service/category_service.dart';
 
 class DrawerNavigation extends StatefulWidget {
@@ -23,11 +23,12 @@ class _DrawerNavigationState extends State<DrawerNavigation> {
     var categories = await categoryService.readCategory();
     categories.forEach((category) {
       setState(() {
-       /* var model = new Category();
-        model.id = category['id'];
-        model.name = category['name'];
-        model.description = category['description'];*/
         _categoryList.add(ListTile(
+          onTap:(){
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context)=>TodoByCategory(category:category['name'])
+                ));
+          },
           title: Text(category['name']),
         ));
       });

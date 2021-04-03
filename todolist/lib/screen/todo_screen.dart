@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:todolist/models/todo.dart';
+import 'package:todolist/screen/home_screen.dart';
 import 'package:todolist/service/category_service.dart';
 import 'package:intl/intl.dart';
 import 'package:todolist/service/todoService.dart';
@@ -34,6 +36,13 @@ class _TodoScreenState extends State<TodoScreen> {
         });
     }
   }
+  Future<bool> _onBackPressed() async {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      SystemNavigator.pop();
+    }
+  }
   _showSnackBar(message){
     var snackBar=new SnackBar(content: message);
     _globalKey.currentState.showSnackBar(snackBar);
@@ -59,76 +68,81 @@ class _TodoScreenState extends State<TodoScreen> {
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _globalKey,
-      appBar: new AppBar(
-        title: new Text('Create Todo'),
-      ),
-      body: new Container(
-        padding: EdgeInsets.all(32.0),
-        child: new Column(
-          children: [
-            new TextField(
-              controller: _titleController,
-              decoration: new InputDecoration(
-                labelText: 'Title',
-                hintText: 'Write Title',
-              ),
-              maxLines: 1,
-              minLines: 1,
+    return new WillPopScope(
+        child: Scaffold(
+            key: _globalKey,
+            appBar: new AppBar(
+              title: new Text('Create Todo'),
             ),
-            new TextField(
-              controller: _descriptionController,
-              decoration: new InputDecoration(
-                labelText: 'Description',
-                hintText: 'Write Note',
-              ),
-              maxLines: 20,
-              minLines: 4,
-            ),
-            new TextField(
-              controller: _dateController,
-              decoration: new InputDecoration(
-                  labelText: 'Date',
-                  hintText: 'Pick a Date',
-                  prefixIcon: InkWell(
-                    onTap: (){
-                      _selectDate(context);
-                    },
-                    child: new Icon(Icons.calendar_today),
-                  )
-              ),
-            ),
+            body: new Container(
+              padding: EdgeInsets.all(32.0),
+              child: new Column(
+                children: [
+                  new TextField(
+                    controller: _titleController,
+                    decoration: new InputDecoration(
+                      labelText: 'Title',
+                      hintText: 'Write Title',
+                    ),
+                    maxLines: 1,
+                    minLines: 1,
+                  ),
+                  new TextField(
+                    controller: _descriptionController,
+                    decoration: new InputDecoration(
+                      labelText: 'Description',
+                      hintText: 'Write Note',
+                    ),
+                    maxLines: 20,
+                    minLines: 4,
+                  ),
+                  new TextField(
+                    controller: _dateController,
+                    decoration: new InputDecoration(
+                        labelText: 'Date',
+                        hintText: 'Pick a Date',
+                        prefixIcon: InkWell(
+                          onTap: (){
+                            _selectDate(context);
+                          },
+                          child: new Icon(Icons.calendar_today),
+                        )
+                    ),
+                  ),
 
-            DropdownButtonFormField(
-              value:_selectedValue ,
-              items: _categories,
-              hint: new Text('Category'),
-              onChanged: (value){
-                setState(() {
-                  _selectedValue=value;
-                });
-              },
-            ),
-            new SizedBox(
-              height: 20,
-            ),
-            new ElevatedButton(
-                onPressed: ()async{
-                  _todo.title=_titleController.text;
-                  _todo.description=_descriptionController.text;
-                  _todo.category=_selectedValue.toString();
-                  _todo.todoDate=_dateController.text;
-                  _todo.isFinished=0;
-                  var result=_todoService.saveTodo(_todo);
-                  print(result);
-                  _showSnackBar(new Text('Added'));
-                },
-                child: new Text('Save'),)
-          ],
+                  DropdownButtonFormField(
+                    value:_selectedValue ,
+                    items: _categories,
+                    hint: new Text('Category'),
+                    onChanged: (value){
+                      setState(() {
+                        _selectedValue=value;
+                      });
+                    },
+                  ),
+                  new SizedBox(
+                    height: 20,
+                  ),
+                  new ElevatedButton(
+                    onPressed: ()async{
+                      _todo.title=_titleController.text;
+                      _todo.description=_descriptionController.text;
+                      _todo.category=_selectedValue.toString();
+                      _todo.todoDate=_dateController.text;
+                      _todo.isFinished=0;
+                      var result=_todoService.saveTodo(_todo);
+                      print(result);
+                      _showSnackBar(new Text('Added'));
+                      Navigator.of(context)
+                          .push(new MaterialPageRoute(builder: (context)=>HomeScreen()))
+                          .then((value) => setState(() => {}));
+                    },
+                    child: new Text('Save'),)
+                ],
+              ),
+            )
         ),
-      )
-    );
+        onWillPop: _onBackPressed);
   }
 
 
